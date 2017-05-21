@@ -223,7 +223,7 @@ begin:
   if (valid_cache && cache_key.mtime == (uint64_t)statbuf.st_mtime) {
     /* if the mtimes match, assume the cache is valid. fetch the cached data. */
     ret = bs_fetch_data(fd, (size_t)cache_key.data_size, handler, &output_data, &exception_tag);
-    if (ret == -1 && errno == _ENOATTR) {
+    if (ret == -1 && errno == 61) {
       /* the key was present, but the data was missing. remove the key, and
        * start over */
       CHECK_C(fremovexattr(fd, xattr_key_name REMOVEXATTR_TRAILER), "fremovexattr");
@@ -426,7 +426,7 @@ bs_get_cache(int fd, struct xattr_key * key)
   ssize_t nbytes;
 
   nbytes = fgetxattr(fd, xattr_key_name, (void *)key, xattr_key_size GETXATTR_TRAILER);
-  if (nbytes == -1 && errno != _ENOATTR) {
+  if (nbytes == -1 && errno != 61) {
     return -1;
   }
 
